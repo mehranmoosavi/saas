@@ -1,4 +1,4 @@
-// lib/prisma.ts
+// // lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
 
 // این خط به TypeScript می‌گوید که یک ویژگی به نام prisma می‌تواند روی شیء global وجود داشته باشد
@@ -13,3 +13,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export default client;
+
+
+
+// lib/prisma.ts (نسخه تستی ساده شده)
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
+// export default prisma;
