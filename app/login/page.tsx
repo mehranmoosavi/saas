@@ -1,5 +1,3 @@
-// app/login/page.tsx
-
 import AuthForm from '@/components/AuthForm'; // مسیر کامپوننت خود را وارد کنید
 
 export default function LoginPage() {

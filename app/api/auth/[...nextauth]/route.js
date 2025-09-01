@@ -1,89 +1,100 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google"; // 1. این خط را تغییر دهید
-import GitHubProvider from "next-auth/providers/github"
-import CredentialsProvider from "next-auth/providers/credentials"
-import client from "@/lib/prisma";
- const auth = NextAuth({
-    session: {
-    strategy: "database",
-  },
-  adapter: PrismaAdapter(client),
-  providers: [
-    // 2. این بلوک را جایگزین کنید
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      // این بخش را برای تست اضافه کنید
-      authorization: {
-        params: {
-          scope: "openid email profile",
-        },
-      },
-    }),
-        GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    }),
-     CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: { label: 'Email', type: 'text', placeholder: 'jsmith' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          return null;
-        }
+import { handlers } from "@/auth"
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+// این خط به Next.js می‌گوید که این مسیر را در محیط Node.js اجرا کند
+// و خطای 'fs' not found را برطرف می‌کند.
 
-        if (!user || !user.hashedPassword) {
-          return null;
-        }
 
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.hashedPassword
-        );
+export const { GET, POST } = handlers
 
-        if (isPasswordCorrect) {
-          return user;
-        }
+// import NextAuth from "next-auth";
+// import { PrismaAdapter } from "@auth/prisma-adapter";
+// import GoogleProvider from "next-auth/providers/google"; // 1. این خط را تغییر دهید
+// import GitHubProvider from "next-auth/providers/github"
+// import CredentialsProvider from "next-auth/providers/credentials"
+// import bcrypt from 'bcrypt'
+// import client from "@/lib/prisma";
 
-        return null;
-      },
-    })
+//  export const { handlers, auth, signIn, signOut ,GET,POST } = NextAuth({
+//     session: {
+//     strategy: "database",
+//   },
+//   adapter: PrismaAdapter(client),
+//   providers: [
+//     // 2. این بلوک را جایگزین کنید
+//     GoogleProvider({
+//       clientId: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       // این بخش را برای تست اضافه کنید
+//       authorization: {
+//         params: {
+//           scope: "openid email profile",
+//         },
+//       },
+//     }),
+//         GitHubProvider({
+//       clientId: process.env.GITHUB_CLIENT_ID,
+//       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+//     }),
+//      CredentialsProvider({
+      
+//       credentials: {
+//         email: {  },
+//         password: {  },
+//       },
+//       async authorize(credentials) {
+//         if (!credentials?.email || !credentials.password) {
+//           return null;
+//         }
+//         const user = await prisma.user.findFirst({
+//           where: { email: credentials.email },
+//         });
+
+
+//         if (!user || !user.hashedPassword) {
+//           return null;
+//         }
+        
+
+
+
+//        const isPasswordCorrect = await bcrypt.compare(
+//           credentials.password,
+//           user.hashedPassword
+//         );
+
+
+//         if (isPasswordCorrect) {
+//                     return user
+//         }
+      
+//         return null;
+//       },
+//     })
     
-  ], secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
-    events: {
-    async signIn(message) {
-      console.log('EVENT: signIn', message)
-    },
-    async createUser(message) {
-      console.log('EVENT: createUser - User should be created now.', message)
-    },
-    async linkAccount(message) {
-      console.log('EVENT: linkAccount - Account should be linked now.', message)
-    },
-    async session(message) {
-      console.log('EVENT: session', message)
-    },
-    async error(message) {
-      console.error('EVENT: error', message)
-    },
-  },
-});
+//   ], secret: process.env.NEXTAUTH_SECRET,
+//   callbacks: {
+//     // --- شروع تغییر کلیدی ---
+//     // این callback بعد از authorize و قبل از ساخت نشست اجرا می‌شود
+//     async signIn({ user, account }) {
+//       console.log("--- SIGNIN CALLBACK TRIGGERED ---");
+//       console.log("User Object received:", JSON.stringify(user, null, 2));
+//       console.log("Account Object received:", JSON.stringify(account, null, 2));
 
-export {auth as GET, auth as POST,auth }
+//       // برای ورود با Credentials، آبجکت account باید null باشد
+//       if (account?.provider === "credentials") {
+//         console.log("This is a credentials sign-in. Proceeding...");
+//       }
+      
+//       // همیشه true برگردانید تا فرآیند ادامه پیدا کند
+//       return true;
+//     },
+//     // --- پایان تغییر کلیدی ---
 
-
-// app/api/auth/[...nextauth]/route.ts
-// auth.ts (فایل جدید در ریشه پروژه)
-
-
-// import { handlers } from "@/auth" // ایمپورت از فایل auth.ts که ساختیم
-// export const { GET, POST } = handlers
+//     session({ session, user }) {
+//       if (session.user) {
+//         session.user.id = user.id;
+//       }
+//       return session;
+//     },
+//   },
+// });
