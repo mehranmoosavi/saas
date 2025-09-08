@@ -43,6 +43,12 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  OWNER
+  ADMIN
+  USER
+}
+
 model User {
   hashedPassword   String?
   id            String    @id @default(cuid())
@@ -52,6 +58,59 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  role          Role  @default(USER)
+  orders        Order[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+}
+
+enum FoodType {
+  DRINKING
+  JAPANESE
+  PERSIAN
+  DESERT
+  
+}
+
+
+model Food {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  type        FoodType
+  description String?
+  price       Decimal // Using Decimal for financial values
+  stock       Int         @default(0) // Inventory control for each food item
+  imageUrl    String?
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  items      OrderItem[]
+  totalPrice Decimal
+  status     OrderStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  order     Order  @relation(fields: [orderId], references: [id])
+  orderId   String
+  food      Food   @relation(fields: [foodId], references: [id])
+  foodId    String
+  quantity  Int
+  price     Decimal // Price of the food at the time of order
 }
 
 model VerificationToken {

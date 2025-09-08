@@ -23,6 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        // let e= credentials.a
         const validatedCredentials = schema.parse(credentials);
         
 
@@ -56,9 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],  
   callbacks: {
     async jwt({ token, account,user }) {
-      console.log({userrrr:user})
-      console.log({tokennnn:token})
-    
+  
       if (account?.provider === "credentials") {
         token.credentials = true;
       }

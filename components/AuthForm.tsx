@@ -1,167 +1,45 @@
-// // components/AuthForm.tsx
 
-// import { signIn } from '@/auth';
-
-
-// export default function AuthForm(){
-
-// return <form action={async (formdata)=>{
-// 'use server'
-// console.log(formdata)
-// try{let result = await signIn('credentials',formdata)
-
-
-// }catch(err){
-//   console.log(err)
-// }
-// }}>
-
-// <input name='email' placeholder="email" type="text" required />
-// <input name='password'  placeholder="Password" type="text" required />
-// <button title='submit' type='submit'>sign in</button>
-
-
-
-// </form>
-
-// }
-
-
-
-// export default function AuthForm() {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const router = useRouter(); // ۲. هوک را فراخوانی کنید
-
-
-//   const handleRegister = async () => {
-//     // فراخوانی API ثبت‌نام
-
-//     const response = await fetch('/api/register', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ email, password, name: 'New User' }),
-//     });
-
-//     if (response.ok) {
-//       alert('Registration successful! Please sign in.');
-//     } else {
-//       alert('Registration failed.');
-//     }
-//   };
-
-// await handleSign()
-
-//   return (
-//     <div>
-//       <input
-//         type="email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
-//         placeholder="Email"
-//       />
-//       <input
-//         type="password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//         placeholder="Password"
-//       />
-//       <button type="button" onClick={handleSignIn}>Sign In</button>
-//       <button type="button" onClick={handleRegister}>Register</button>
-//     </div>
-//   );
-// }
-
-
-// 'use client';
-
-// import { signIn } from 'next-auth/react'; 
-// import { useState } from 'react';
-// import { useRouter } from 'next/navigation';
-
-// export default function AuthForm() {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [error, setError] = useState('');
-//   const router = useRouter();
-
-//   const handleRegister = async () => {
-//     // فراخوانی API ثبت‌نام
-//     const response = await fetch('/api/register', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ email, password, name: 'New User' }),
-//     });
-//     if (response.ok) {
-//       alert('Registration successful! Please sign in.');
-//     } else {
-//       alert('Registration failed.');
-//     }
-//   };
-
-//   const handleSignIn = async () => {
-//     setError(''); // پاک کردن خطای قبلی
-//     try {
-//       // ۲. استفاده از try...catch برای مدیریت خطا در نسخه ۵
-//       const result = await signIn('credentials', {
-//         redirect: false,
-//         email,
-//         password,
-//       });
-
-//       if (result?.error) {
-//         // اگر خطایی از سرور برگردد (مثلاً رمز اشتباه)
-//         setError('Invalid email or password. Please try again.');
-//         return;
-//       }
-      
-//       // اگر خطایی وجود نداشته باشد، به داشبورد هدایت کن
-//       router.push('/dashboard');
-
-//     } catch (error) {
-//       // برای خطاهای غیرمنتظره شبکه
-//       console.error("Sign in error:", error);
-//       setError('An unexpected error occurred.');
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <input
-//         type="email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
-//         placeholder="Email"
-//       />
-//       <input
-//         type="password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//         placeholder="Password"
-//       />
-//       <button type="button" onClick={handleSignIn}>Sign In</button>
-//       <button type="button" onClick={handleRegister}>Register</button>
-      
-//       {/* نمایش پیام خطا به کاربر */}
-//       {error && <p style={{ color: 'red' }}>{error}</p>}
-//     </div>
-//   );
-// }
-
-
-// components/AuthForm.tsx
 'use client'
  
 // import { useFormState } from 'react-dom'
 import {useActionState} from 'react'
-import { authenticate } from '@/app/action'
+import { authenticate,signUp } from '@/app/action'
+import { useState } from 'react'
  
 export default function AuthForm() {
   const [errorMessage, dispatch] = useActionState(authenticate, undefined)
+  const [state,setState] = useState('login')
+ const setSignup = ()=>{setState('signup')}
+ const setLogin = ()=>{setState('login')}
+
+
+  return (<>
+{state=='login'?<Login setStateSignup={setSignup}/>:<SignUp setStateLogin={setLogin}/>}
+</>
+   
+  )
+}
  
-  return (
-    <form action={dispatch}>
-      <div>
+
+ function SignUp({setStateLogin}){
+  const [errorMessage, dispatch] = useActionState(signUp, undefined)
+  const [state,setState] = useState('login')
+
+return <>
+ <form action={dispatch}>
+    <div className='flex justify-between'>
+        <label htmlFor="username">Username</label>
+        <div>
+          <input
+            id="username"
+            // type="email"
+            name="username"
+            placeholder="Enter your username"
+            required
+          />
+        </div>
+      </div>
+      <div className='flex justify-between'>
         <label htmlFor="email">Email</label>
         <div>
           <input
@@ -173,7 +51,7 @@ export default function AuthForm() {
           />
         </div>
       </div>
-      <div>
+      <div className='flex justify-between'>
         <label htmlFor="password">Password</label>
         <div>
           <input
@@ -185,8 +63,69 @@ export default function AuthForm() {
             // minLength={6}
           />
         </div>
+      </div >
+       <div className='flex justify-between'>
+        <label htmlFor="password">role</label>
+        <div>
+          <select name="role" id="role" title='role'>
+<option value="user">user</option>
+<option value="admin">admin</option>
+<option value="owner">owner</option>
+          </select>
+        </div>
+      </div >
+      <div className='flex justify-around'>   
+       <button title='b' >register</button></div>
+      
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {errorMessage && (
+          <p>{errorMessage}</p>
+        )}
       </div>
-      <LoginButton />
+    </form>
+</>
+
+ }
+
+ function Login({setStateSignup}){
+  const [errorMessage, dispatch] = useActionState(authenticate, undefined)
+  const [state,setState] = useState('login')
+ 
+  return (
+    <form action={dispatch}>
+    
+      <div className='flex justify-between'>
+        <label htmlFor="email">Email</label>
+        <div>
+          <input
+            id="email"
+            // type="email"
+            name="email"
+            placeholder="Enter your email address"
+            required
+          />
+        </div>
+      </div>
+      <div className='flex justify-between'>
+        <label htmlFor="password">Password</label>
+        <div>
+          <input
+            id="password"
+            // type="password"
+            name="password"
+            placeholder="Enter password"
+            required
+            // minLength={6}
+          />
+        </div>
+      </div >
+      <div className='flex justify-between'>   
+        <button title='a' type='submit'>Log in</button>
+       <button title='b' type='button' onClick={()=>{setStateSignup()}}>sign up</button></div>
+      
       <div
         aria-live="polite"
         aria-atomic="true"
@@ -197,14 +136,6 @@ export default function AuthForm() {
       </div>
     </form>
   )
-}
- 
-function LoginButton() {
 
- 
-  return (
-    <button title='a'>
-      Log in
-    </button>
-  )
-}
+
+ }
