@@ -58,10 +58,13 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  role          Role  @default(USER)
+  role          Role  
   orders        Order[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
+  favoriteFoods FavoriteFood[]
+  addresses     Address[]
+  reviews       Review[]
 }
 
 enum FoodType {
@@ -69,7 +72,7 @@ enum FoodType {
   JAPANESE
   PERSIAN
   DESERT
-  
+  FAST_FOOD
 }
 
 
@@ -84,9 +87,12 @@ model Food {
   orderItems  OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  favoritedBy FavoriteFood[]
+  reviews     Review[]
 }
 
 enum OrderStatus {
+  CART 
   PENDING
   COMPLETED
   CANCELLED
@@ -101,6 +107,9 @@ model Order {
   status     OrderStatus @default(PENDING)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  deliveryMethod DeliveryMethod @default(PICKUP)
+  address        Address?       @relation(fields: [addressId], references: [id])
+  addressId      String?
 }
 
 model OrderItem {
@@ -111,6 +120,7 @@ model OrderItem {
   foodId    String
   quantity  Int
   price     Decimal // Price of the food at the time of order
+   @@unique([orderId, foodId])  
 }
 
 model VerificationToken {
@@ -119,4 +129,52 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model FavoriteFood {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+  
+  createdAt DateTime @default(now())
+
+  @@id([userId, foodId]) // کلید اصلی ترکیبی برای جلوگیری از لایک تکراری
+}
+
+enum DeliveryMethod {
+  PICKUP // حضوری
+  DELIVERY // تحویل در محل
+}
+
+
+model Address {
+  id          String  @id @default(cuid())
+  street      String
+  city        String
+  postalCode  String
+  details     String? // توضیحات بیشتر مانند پلاک و واحد
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id     String @id @default(cuid())
+  rating Int    // امتیاز از ۱ تا ۵
+  text   String // متن کامنت
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, foodId]) // هر کاربر برای هر غذا فقط یک نظر می‌تواند ثبت کند
 }

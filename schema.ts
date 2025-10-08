@@ -8,15 +8,15 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>;
 
 
-const signInSchema = z.object({
+const signUpSchema = z.object({
 email:z.string().email(),
   password: z.string().min(1),
-  role:z.enum(['user','admin','owner']),
+  Role:z.enum(['OWNER','ADMIN','USER']),
   name:z.string()
 
 })
-type SignInSchema = z.infer<typeof signInSchema>;
+type SignInSchema = z.infer<typeof signUpSchema>;
 
 
-export { schema,signInSchema, type Schema,type SignInSchema };
+export { schema,signUpSchema, type Schema,type SignInSchema };
 

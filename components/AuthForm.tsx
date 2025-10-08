@@ -1,7 +1,4 @@
-
 'use client'
- 
-// import { useFormState } from 'react-dom'
 import {useActionState} from 'react'
 import { authenticate,signUp } from '@/app/action'
 import { useState } from 'react'
@@ -68,9 +65,9 @@ return <>
         <label htmlFor="password">role</label>
         <div>
           <select name="role" id="role" title='role'>
-<option value="user">user</option>
-<option value="admin">admin</option>
-<option value="owner">owner</option>
+<option value="USER">USER</option>
+<option value="ADMIN">ADMIN</option>
+<option value="OWNER">OWNER</option>
           </select>
         </div>
       </div >
@@ -88,7 +85,7 @@ return <>
     </form>
 </>
 
- }
+}
 
  function Login({setStateSignup}){
   const [errorMessage, dispatch] = useActionState(authenticate, undefined)
@@ -139,3 +136,4 @@ return <>
 
 
  }
+

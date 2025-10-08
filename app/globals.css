@@ -125,3 +125,8 @@
 *{
   /* border: 2px solid saddlebrown; */
 }
+
+.container-div img {
+  max-width: 100%;
+  height: auto; /* برای حفظ نسبت ابعاد تصویر */
+}

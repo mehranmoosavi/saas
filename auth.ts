@@ -23,6 +23,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+      console.log('auth executed')
+
         // let e= credentials.a
         const validatedCredentials = schema.parse(credentials);
         
@@ -32,6 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await prisma.user.findUnique({
           where: { email:validatedCredentials.email },
         });
+ 
 
         if (!user || !user.hashedPassword) return null;
 
@@ -39,9 +42,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           validatedCredentials.password,
           user.hashedPassword
         );
-        console.log(isPasswordCorrect)
-
-        if (isPasswordCorrect) return user;
+//      user= {
+//     id: '1',
+//     name:'1',
+//     email: '1',
+//     role: 'ADMIN',
+//     hashedPassword: '1',
+//     emailVerified:  null,
+//     image: null,
+//     createdAt: new Date,
+//     updatedAt:  new Date,
+if (isPasswordCorrect) return user
+// }
         
         return null;
       },
@@ -57,6 +69,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],  
   callbacks: {
     async jwt({ token, account,user }) {
+      console.log({tokennnnn:token})
+
   
       if (account?.provider === "credentials") {
         token.credentials = true;
@@ -72,12 +86,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return url
     },
     async session({ session, token }) {
+      console.log({sessiontokennnn:token})
 
-      return session
+      return {
+    id: session.userId,
+    sessionToken: session.sessionToken,
+    userId: session.userId,
+    expires: session.expires,
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      emailVerified: session.user.emailVerified,
+      image: session.user.image,
+      role: session.user.role,
+      createdAt: session.user.createdAt,
+      updatedAt: session.user.updatedAt,
+      
+    }
+  }
     }
   },
     jwt: {
+      
     encode: async function (params) {
+      console.log('jwt option executed')
+
       if (params.token?.credentials) {
         const sessionToken = uuid();
 
@@ -96,6 +130,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         return sessionToken;
+        
       }
       return defaultEncode(params);
     },
@@ -103,3 +138,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 
 });
+
+  // ,
+  // "overrides": {
+  //   "@auth/core": "^0.31.0" 
+  // }
